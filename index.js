@@ -131,6 +131,61 @@ io.on('connection', (socket) => {
     });
   });
 
+  // WebRTC signaling events
+  socket.on('call-offer', (data) => {
+    const { roomId, offer } = data;
+    console.log(`Call offer in room ${roomId}`);
+    
+    // Forward offer to other users in the room
+    socket.to(roomId).emit('call-offer', {
+      offer,
+      from: socket.id
+    });
+  });
+
+  socket.on('call-answer', (data) => {
+    const { roomId, answer } = data;
+    console.log(`Call answer in room ${roomId}`);
+    
+    // Forward answer to other users in the room
+    socket.to(roomId).emit('call-answer', {
+      answer,
+      from: socket.id
+    });
+  });
+
+  socket.on('ice-candidate', (data) => {
+    const { roomId, candidate } = data;
+    console.log(`ICE candidate in room ${roomId}`);
+    
+    // Forward ICE candidate to other users in the room
+    socket.to(roomId).emit('ice-candidate', {
+      candidate,
+      from: socket.id
+    });
+  });
+
+  socket.on('call-ended', (data) => {
+    const { roomId } = data;
+    console.log(`Call ended in room ${roomId}`);
+    
+    // Notify other users that call ended
+    socket.to(roomId).emit('call-ended', {
+      from: socket.id
+    });
+  });
+
+  socket.on('video-toggle', (data) => {
+    const { roomId, enabled } = data;
+    console.log(`Video toggle in room ${roomId}: ${enabled}`);
+    
+    // Forward video toggle state to other users
+    socket.to(roomId).emit('video-toggle', {
+      enabled,
+      from: socket.id
+    });
+  });
+
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`);
