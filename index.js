@@ -94,6 +94,43 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} in room ${roomId} triggered ${action} at ${currentTime}`);
   });
 
+  // Chat events
+  socket.on('chat-message', (messageData) => {
+    const { roomId, userId, username, message, timestamp } = messageData;
+    
+    // Broadcast message to all users in the room (including sender)
+    io.to(roomId).emit('chat-message', {
+      roomId,
+      userId,
+      username,
+      message,
+      timestamp
+    });
+    
+    console.log(`Chat message in room ${roomId} from ${username}: ${message}`);
+  });
+
+  // Typing indicators
+  socket.on('user-typing', (data) => {
+    const { roomId, userId } = data;
+    
+    // Broadcast typing indicator to other users in the room
+    socket.to(roomId).emit('user-typing', {
+      userId,
+      username: `User ${userId.slice(-4)}`
+    });
+  });
+
+  socket.on('user-stopped-typing', (data) => {
+    const { roomId, userId } = data;
+    
+    // Broadcast stop typing to other users in the room
+    socket.to(roomId).emit('user-stopped-typing', {
+      userId,
+      username: `User ${userId.slice(-4)}`
+    });
+  });
+
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`);
