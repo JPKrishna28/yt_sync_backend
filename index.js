@@ -48,13 +48,13 @@ io.on('connection', (socket) => {
   socket.on('join-room', (roomId) => {
     console.log(`Received join-room event for room ${roomId} from user ${socket.id}`);
     
-    // Check if room exists and has less than 2 users
+    // Check if room exists and has less than 10 users
     if (!rooms[roomId]) {
       rooms[roomId] = { users: [] };
       console.log(`Created new room: ${roomId}`);
     }
 
-    if (rooms[roomId].users.length >= 2) {
+    if (rooms[roomId].users.length >= 10) {
       console.log(`Room ${roomId} is full, rejecting user ${socket.id}`);
       socket.emit('room-full');
       return;
